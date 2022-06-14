@@ -1,0 +1,88 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0", 
+      "title": "My User Project CRUD"
+     
+    },
+    "host": "localhost:6001",
+    "basePath": "/",
+    "tags": [
+      {
+        "name": "user",
+        "description": "API for users in the system"
+      }
+    ],
+
+  
+    "paths": {
+      "/users/getTask?page=1&limit=3&short=DESC": {
+        "get": {
+          "tags": ["Task"],
+          "summary": "Get all users in system",
+          "responses": {
+            "200": {
+              "description": "OK"
+              
+            }
+          }
+        }
+      },
+      "/users/getUser": {
+        "get": {
+          "tags": ["user"],
+          "summary": "Get all users in system",
+          "responses": {
+            "200": {
+              "description": "OK"
+              
+            }
+          }
+        }
+      },
+      "/users/insertuser": {
+        "post": {
+          "tags": ["user"],
+          "summary": "creat users in system",
+          "parameters": [
+            {
+              "name": "email",
+              "password": "password",
+              "in": "body",
+              "required": true,
+              "description": "User that we want to create",
+              "schema": {
+                "$ref": "#/definitions/User"
+              },
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "definitions": {
+      "User": {
+        "required": ["email", "password"],
+        "properties": {
+         
+          "email": {
+            "type": "string"
+          },
+        
+          "password": {
+            "type": "string"
+          }
+        }
+      }
+
+    
+    }}
