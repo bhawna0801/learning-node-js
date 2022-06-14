@@ -5,8 +5,9 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const bodyParser = require("body-parser");
 //const sweggerDoc= require("./swegger.json")
 const { options } = require("joi");
+const cookieParser = require("cookie-parser");
 const app = express();
-const port = 6001;
+const port = 3000;
 
 app.use(bodyParser.json());
 app.use(
@@ -14,6 +15,7 @@ app.use(
     extended: true,
   })
 );
+app.use(cookieParser());
 // const option = {
 //   definition: {
 //     openapi: "3.0.0",
@@ -24,7 +26,7 @@ app.use(
 //     },
 //     servers: [
 //       {
-//         url: "http://localhost:6001",
+//         url: "http://localhost:3000",
 //       },
 //     ],
 //   },
@@ -57,7 +59,7 @@ const option = {
     },
     servers: [
       {
-        url: "http://localhost:6001",
+        url: "http://localhost:3000",
       },
     ],
     basePath: "/",

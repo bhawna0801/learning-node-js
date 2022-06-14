@@ -9,23 +9,25 @@ const {
   getTask,
   deleteTask,
   getUser,
-  pagination,shortTask,getUsertask
+  pagination,
+  shortTask,
+  getUsertask,
+  findUser
 } = require("../model/usre");
-const {registervalidation}=require("../function/validatetion");
+const { registervalidation } = require("../function/validatetion");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const key = "verysecretkey";
 
-
 exports.creatuser = async (request, response) => {
   const results = await creatUser();
-  console.log("table created", results);
+
   response.status(200).json({ status: true, Msg: "table created" });
 };
 exports.insertuser = async (request, response) => {
   const { email, password } = request.body;
   let validet = registervalidation({ email, password });
-  console.log(";;;;", validet);
+
   if (validet.error) {
     return response.json({ status: false, error: error.details[0].message });
   } else {
@@ -34,7 +36,6 @@ exports.insertuser = async (request, response) => {
     try {
       let data = await findoneUser(email, password);
 
-      console.log("data....", data.rows);
       if (data.rows.length == 1) {
         response.json({
           status: false,
@@ -43,7 +44,6 @@ exports.insertuser = async (request, response) => {
       } else {
         let data = await insertUser(email, hashPassword);
 
-        console.log(`User added with ID: ${data.rows}`);
         response.json({
           status: "true",
           data: data.rows,
@@ -57,17 +57,15 @@ exports.insertuser = async (request, response) => {
 exports.login = async (request, response) => {
   const { email, password } = request.body;
   if (!email) {
-    console.log(">>>>>>>>>>>>", email);
     response.json({
       status: false,
       msg: "email is required",
     });
   }
   if (!password) {
-    console.log(">>>>>>>>>>>>", email);
     response.json({
       status: false,
-      msg: "password is required"
+      msg: "password is required",
     });
   }
 
@@ -75,15 +73,12 @@ exports.login = async (request, response) => {
 
   if (data.rows.length > 0) {
     let pass = data.rows[0].password;
-    console.log("results,,,,,,", data.rows[0].password);
+
     const hashPassword = await bcrypt.compare(password, pass);
-    console.log(hashPassword);
+
     if (hashPassword == true) {
       let data = await varifyUsre(email, pass);
-      //
-      //console.log(data.rows);
 
-      console.log(data.rows);
       const options = {
         expiresIn: "24h",
 
@@ -97,11 +92,13 @@ exports.login = async (request, response) => {
             msg: err,
           });
         } else {
-          response.header("token", token).status(200).send({
-            status: true,
-            token: token,
-            msg: "success",
-          });
+         
+          return response
+            .cookie("token", token, {
+              httpOnly: true,
+            })
+            .status(200)
+            .json({ message: "Logged in successfully 😊 👌" });
         }
       });
     } else {
@@ -110,8 +107,6 @@ exports.login = async (request, response) => {
         msg: "invailid crdentional",
       });
     }
-    //   response.status(200).json({status: true,
-    // results:results.rows});
   } else {
     response.json({
       status: false,
@@ -123,65 +118,57 @@ exports.login = async (request, response) => {
 exports.insertTask = async (request, response) => {
   const { name, dec, user_id } = request.body;
   if (!name) {
-    console.log(">>>>>>>>>>>>", name);
     response.json({
       status: false,
       msg: "name is required",
     });
-  }else{
-    let token
-    let {authorization} = request.headers;
-  console.log(authorization)
-if(authorization){
-token= authorization.split(' ')[1]
-}
-    console.log(",,,,,,,,,,,,", request.headers.token);
+  } else {
+    let token;
 
-  
-  if(request.headers.token){
-    token=request.headers.token
+    if (request.token) {
+      token = request.token;
+    }
+    const data = jwt.decode(token);
+    const iddd = data.aud;
+    let results = await instertask(name, dec, iddd);
+    response.json({
+      status: "true",
+      data: results.rows,
+    });
   }
-  const data = jwt.decode(token);
-  console.log(",,,,,,,,,,,,", data);
-  const iddd = data.aud;
-  console.log(data.aud);
-  let results = await instertask(name, dec, iddd);
-  console.log("User added with ID:", results.rows);
-  response.json({
-    status: "true",
-    data: results.rows,
-  });
-}
 };
 
 exports.updatetask = async (request, response) => {
-  let {authorization} = request.headers;
+  let token;
 
-  let token= authorization.split(' ')[1]
-
-  console.log(",,,,,,,,,,,,", token);
+  if (request.token) {
+    token = request.token;
+  }
   const data = jwt.decode(token);
   const iddd = data.aud;
 
-  console.log(data.aud);
   const id = request.params.id;
   let task = await findoneTask(id);
   let tname = task.rows[0].name;
   let tdec = task.rows[0].dec;
-  console.log(task.rows);
+  let usre = task.rows[0].user_id;
+  if (iddd != usre) {
+    return response.status(401).json({
+      status: false,
+      msg: " Unauthorized",
+    });
+  }
   let { name, dec } = request.body;
   if (!name) {
-    console.log(">>>>>>>>>>>>", tname);
     name = tname;
   }
   if (!dec) {
     dec = tdec;
   }
 
-  console.log(request.body.name);
   let results = await updateTask(name, dec, iddd, id);
-  console.log(results.rows);
-  response.status(200).json({
+
+  return response.status(200).json({
     status: true,
     data: results.rows,
   });
@@ -190,40 +177,17 @@ exports.getTask = async (request, response) => {
   const pageno = request.query.page;
   const name = request.query.name;
   const short = request.query.short;
-console.log("short",short)
-     const pageSize = pageno;
-     
+  const pageSize = pageno;
 
-      const limitValue = request.query.limit||5;
-      const skipValue = 5 * (pageSize - 1);
-    
-    console.log(name);
-    console.log("::::::::::",limitValue,skipValue,short)
-    let results = await pagination(limitValue, skipValue,short);
-    console.log(">>>>>>", results.rows);
-    response.json({
-      status: true,
-      data: results.rows,
-    });
-  
-  //shorted list accending
+  const limitValue = request.query.limit || 5;
+  const skipValue = limitValue * (pageSize - 1);
 
-  // if (short) {
-  //   console.log(short)
-  //   let value = await shortTask(short);
-  //   console.log(value.rows);
-  //   response.json({
-  //     status: true,
-  //     data: value.rows,
-  //   });
-  // }
+  let results = await pagination(limitValue, skipValue, short);
 
-  // let records = await getTask();
-  // response.json({
-  //   status: true,
-  //   results: records.rows,
-  // });
-
+  response.json({
+    status: true,
+    data: results.rows,
+  });
 };
 
 exports.deleteTask = async (request, response) => {
@@ -233,7 +197,6 @@ exports.deleteTask = async (request, response) => {
     status: true,
     msg: "1 record Deleted",
   });
-  console.log("1 record Deleted")
 };
 exports.getUser = async (request, response) => {
   let task = await getUser();
@@ -242,15 +205,33 @@ exports.getUser = async (request, response) => {
     data: task.rows,
   });
 };
-exports.getUserTask=async (request, response) => {
-  const token = request.headers.user_token;
+exports.getUserTask = async (request, response) => {
+  let token;
+
+  if (request.token) {
+    token = request.token;
+  }
   const data = jwt.decode(token);
-  console.log(",,,,,,,,,,,,", data);
+
   const userid = data.aud;
-  console.log(userid);
-  let task= await getUsertask(userid)
+  let task = await getUsertask(userid);
   response.status(200).json({
     status: true,
     data: task.rows,
   });
-}
+};
+exports.me = async (request, response) => {
+  let token;
+
+  if (request.token) {
+    token = request.token;
+  }
+  const data = jwt.decode(token);
+
+  const id = data.aud;
+  let task = await findUser(id);
+  response.status(200).json({
+    status: true,
+    data: task.rows,
+  });
+};

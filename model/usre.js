@@ -59,25 +59,34 @@ exports.getUser =async () => {
 
 const shortTask=async(short)=>{
   console.log(short);
-  return  pool.query(`SELECT * FROM task_2 ORDER BY id ${short}`)
+  return  pool.query(`SELECT * FROM task_2 ORDER BY ${short}`)
 }
 exports. pagination =async (limitValue,skipValue,short)=>{
   console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",limitValue,skipValue,short)
-  //if(limitValue&&short&&skipValue){
+  if(limitValue && short && skipValue>=0){
   console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",limitValue,skipValue,short)
- return pool.query (`SELECT * FROM task_2 ORDER BY id ${short} LIMIT $1 OFFSET $2`,[limitValue,skipValue])
-//  SELECT * FROM task_2 WHERE name LIKE '%sql%'  ORDER BY id DESC LIMIT 5  OFFSET 5
-//  }
-//  if(short){ return  shortTask(short)}
-  if(!limitValue&&!short&&!skipValue){
+ return pool.query (`SELECT * FROM task_2 ORDER BY ${short} LIMIT $1 OFFSET $2`,[limitValue,skipValue])
+// SELECT * FROM task_2 WHERE name LIKE '%sql%'  ORDER BY id DESC LIMIT 5  OFFSET 5
+  }else{
+if(short){ return  shortTask(short)}
+  
+// if(!limitValue&&!short&&!skipValue){
     
-//return getTask()
-  }
+// return getTask()
+//   }
 }
+return getTask()
+ }
+ 
+
 const srechname = async (name)=>{
   return pool.query( "SELECT	*  FROM	task_2 WHERE name LIKE $1",[name])
 }
 exports.getUsertask = async (userid)=>{
   return pool.query(`SELECT	*  FROM	task_2 WHERE user_id  = ${userid}`)
+
+}
+exports.findUser = async (id)=>{
+  return pool.query(`SELECT	email FROM	info WHERE id  = ${id}`)
 
 }
