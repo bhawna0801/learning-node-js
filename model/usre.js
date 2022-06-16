@@ -1,6 +1,6 @@
 const Pool = require("pg").Pool;
 require('dotenv').config()
-console.log(process.env.USER_DB)
+
 const pool = new Pool({
   user: process.env.USER_DB,
   host: process.env.DB_HOST,
@@ -62,9 +62,9 @@ const shortTask=async(short)=>{
   return  pool.query(`SELECT * FROM task_2 ORDER BY ${short}`)
 }
 exports. pagination =async (limitValue,skipValue,short)=>{
-  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",limitValue,skipValue,short)
+ // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",limitValue,skipValue,short)
   if(limitValue && short && skipValue>=0){
-  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",limitValue,skipValue,short)
+ // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",limitValue,skipValue,short)
  return pool.query (`SELECT * FROM task_2 ORDER BY ${short} LIMIT $1 OFFSET $2`,[limitValue,skipValue])
 // SELECT * FROM task_2 WHERE name LIKE '%sql%'  ORDER BY id DESC LIMIT 5  OFFSET 5
   }else{

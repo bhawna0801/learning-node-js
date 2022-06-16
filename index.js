@@ -6,8 +6,9 @@ const bodyParser = require("body-parser");
 //const sweggerDoc= require("./swegger.json")
 const { options } = require("joi");
 const cookieParser = require("cookie-parser");
+const { getUser,insertuser} = require("./controller/user");
 const app = express();
-const port = 3000;
+const port =  8080;
 
 app.use(bodyParser.json());
 app.use(
@@ -16,38 +17,6 @@ app.use(
   })
 );
 app.use(cookieParser());
-// const option = {
-//   definition: {
-//     openapi: "3.0.0",
-//     info: {
-//       title: "Node Js  Api",
-//       version: "^1.0.0",
-//       description: "a simple curd api",
-//     },
-//     servers: [
-//       {
-//         url: "http://localhost:3000",
-//       },
-//     ],
-//   },
-//   components: {
-//     securitySchemes: {
-//       Bearer: {
-//         type: "http",
-//         scheme: "bearer",
-//         description: "Enter JWT Bearer token",
-//         bearerFormat: "JWT",
-//       },
-//     },
-//   },
-//   security: [
-//     {
-//       Bearer: [],
-//     },
-//   ],
-
-//   apis: [`${__dirname}/router/user.js`],
-// };
 
 const option = {
   swaggerDefinition: {
@@ -86,8 +55,17 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.get("/", (request, response) => {
   return response.json({ info: "Node.js, Express, and Postgres API" });
 });
-
-app.listen(port, () => {
-  console.log(`App running on port ${port}.`);
-});
+// app.listen(port,
+//    () => {
+//   console.log(`App running on port ${port}.`);
+// });
 app.use(User);
+
+// const students = ["Elie", "Matt", "Joel", "Michael"];
+
+// app.get("/", (req, res) => {
+//   return res.json(students);
+// });
+
+
+module.exports = app;

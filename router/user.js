@@ -203,7 +203,8 @@ router.get("/users/getTasks", getTask);
  *               items:
  *                 $ref: '#/components/schemas/User'
  */
-router.get("/users/getUser", getUser);
+router.get("/users/getUser", getUser)
+
 
 router.get("/users/getUSerTask", tokenverify, getUserTask);
 /**

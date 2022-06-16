@@ -12,7 +12,7 @@ const {
   pagination,
   shortTask,
   getUsertask,
-  findUser
+  findUser,
 } = require("../model/usre");
 const { registervalidation } = require("../function/validatetion");
 const bcrypt = require("bcryptjs");
@@ -92,13 +92,12 @@ exports.login = async (request, response) => {
             msg: err,
           });
         } else {
-         
           return response
             .cookie("token", token, {
               httpOnly: true,
             })
             .status(200)
-            .json({ message: "Logged in successfully 😊 👌" });
+            .json({ message: "Logged in successfully 😊 👌" ,token:token});
         }
       });
     } else {
@@ -200,10 +199,14 @@ exports.deleteTask = async (request, response) => {
 };
 exports.getUser = async (request, response) => {
   let task = await getUser();
-  response.status(200).json({
-    status: true,
-    data: task.rows,
-  });
+ // console.log({task, response});
+  if(task){
+   try{
+  return response.json({ status: 200,data :task.rows });
+  } catch(e){
+    console.log(e)
+  }
+   }
 };
 exports.getUserTask = async (request, response) => {
   let token;
@@ -217,7 +220,7 @@ exports.getUserTask = async (request, response) => {
   let task = await getUsertask(userid);
   response.status(200).json({
     status: true,
-    data: task.rows,
+    //data: task.rows,
   });
 };
 exports.me = async (request, response) => {
@@ -232,6 +235,6 @@ exports.me = async (request, response) => {
   let task = await findUser(id);
   response.status(200).json({
     status: true,
-    data: task.rows,
+    // data: task.rows,
   });
 };
