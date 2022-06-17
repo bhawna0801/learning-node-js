@@ -1,4 +1,5 @@
 const { tokenverify } = require("../function/tokenverify");
+const { findtoken } = require("../supertest/function/findtoken");
 const express = require("express");
 //const app = express();
 const supertest = require("supertest");
@@ -13,9 +14,9 @@ test("GET Task", async function () {
 test("Post InsertTask", async function () {
   const user = await supertest(app)
     .post("/users/login")
-    .send({ email: "email@gmail.com", password: "email123" });
-  let token = user.body.token;
-
+    .send({ email: "Pragya@gmail.com", password: "pragya@123" });
+    let cookie= user.header["set-cookie"]
+    let token = await findtoken(cookie)
   expect(user.status).toBe(200);
   const res = await supertest(app)
     .post("/users/insertTask")
@@ -32,12 +33,14 @@ test("Post Update", async function () {
   const user = await supertest(app)
     .post("/users/login")
     .send({ email: "Pragya@gmail.com", password: "pragya@123" });
-  let token = user.body.token;
-
-  expect(user.status).toBe(200);
+   let cookie= user.header["set-cookie"]
+let token = await findtoken(cookie)
+ 
+   expect(user.status).toBe(200);
   const res = await supertest(app)
     .put("/users/updatetask/41")
-    .set("token", ` ${token}`);
+   .set("token", ` ${token}`);
+  console.log(res.text)
 
-  expect(res.statusCode).toBe(200);
+  expect(res.status).toBe(200);
 });

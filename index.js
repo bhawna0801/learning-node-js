@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("./router/user");
+const Task = require("./router/task");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const bodyParser = require("body-parser");
@@ -7,6 +8,7 @@ const bodyParser = require("body-parser");
 const { options } = require("joi");
 const cookieParser = require("cookie-parser");
 const { getUser,insertuser} = require("./controller/user");
+
 const app = express();
 const port =  8080;
 
@@ -28,7 +30,7 @@ const option = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
+        url: "http://localhost:8080",
       },
     ],
     basePath: "/",
@@ -47,19 +49,20 @@ const option = {
     //   },
     // ],
   },
-  apis: [`${__dirname}/router/user.js`],
-};
+  apis: [`${__dirname}/router/*.js`]
+}
 const specs = swaggerJsdoc(option);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.get("/", (request, response) => {
   return response.json({ info: "Node.js, Express, and Postgres API" });
 });
-// app.listen(port,
-//    () => {
-//   console.log(`App running on port ${port}.`);
-// });
+app.listen(port,
+   () => {
+  console.log(`App running on port ${port}.`);
+});
 app.use(User);
+app.use(Task);
 
 // const students = ["Elie", "Matt", "Joel", "Michael"];
 
