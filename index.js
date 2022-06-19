@@ -8,9 +8,37 @@ const bodyParser = require("body-parser");
 const { options } = require("joi");
 const cookieParser = require("cookie-parser");
 const { getUser,insertuser} = require("./controller/user");
+const httpStatus = require('http-status');
+const  ApiError  = require("./function/handalerror");
 
 const app = express();
 const port =  8080;
+
+// eslint-disable-next-line no-unused-vars
+const errorHandler = (err, req, res, next) => {
+  let {
+    statusCode,
+    message
+  } = err;
+  if (!err.isOperational) {
+    statusCode = httpStatus.INTERNAL_SERVER_ERROR;
+    message = httpStatus[httpStatus.INTERNAL_SERVER_ERROR];
+  }
+
+  res.locals.errorMessage = err.message;
+  const response = {
+    error: {
+      code: statusCode,
+      type: httpStatus[statusCode],
+      message,
+      ...({
+        //stack: err.stack
+      }),
+    },
+    success: false
+  };
+  res.status(statusCode).send(response);
+};
 
 app.use(bodyParser.json());
 app.use(
@@ -64,11 +92,7 @@ app.listen(port,
 app.use(User);
 app.use(Task);
 
-// const students = ["Elie", "Matt", "Joel", "Michael"];
-
-// app.get("/", (req, res) => {
-//   return res.json(students);
-// });
-
+// handle error
+app.use(errorHandler);
 
 module.exports = app;

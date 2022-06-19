@@ -9,16 +9,20 @@ const {
 } = require("../model/usre");
 
 const { registervalidation } = require("../function/validatetion");
-const  AppError  = require("../function/handalerror");
+const  ApiError  = require("../function/handalerror");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const key = "verysecretkey";
 
-exports.creatuser = async (request, response) => {
-  const results = await creatUser();
-
-  response.status(200).json({ status: true, Msg: "table created" });
+const catchAsync = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch((err) => next(err));
 };
+
+exports.creatuser = catchAsync(async (request, response) => {
+  //const results = await creatUser();
+  throw new ApiError(400, "Error Message Not found"); 
+  response.status(200).json({ status: true, Msg: "table created" });
+});
 exports.insertuser = async (request, response,next) => {
   const { email, password } = request.body;
   let validet = registervalidation({ email, password });
